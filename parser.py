@@ -1,6 +1,7 @@
 from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 import json
+import time
 
 # Загрузка куков из файла
 with open('cookies.json', 'r') as file:
@@ -13,22 +14,29 @@ with sync_playwright() as p:
 
     # Установка куков
     for cookie in cookies_list:
-        context.add_cookies([{
+        cookie_dict = {
             'name': cookie['name'],
             'value': cookie['value'],
             'domain': cookie['domain'],
             'path': cookie['path'],
             'secure': cookie['secure'],
             'httpOnly': cookie['httpOnly'],
-            'expires': cookie.get('expiry')
-        }])
+        }
+        if 'expirationDate' in cookie:
+            cookie_dict['expires'] = cookie['expirationDate']
+        context.add_cookies([cookie_dict])
 
     page = context.new_page()
     url = 'https://pro.avito.ru/statistics'
     page.goto(url)
+
+    # Делаем паузу для полной загрузки страницы
+    time.sleep(5)
+
+    # Получаем HTML страницы
     html = page.content()
 
-    # Закрытие браузера
+    # Закрываем браузер
     browser.close()
 
 # Создаем объект BeautifulSoup для парсинга HTML
