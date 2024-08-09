@@ -1,2 +1,2 @@
 #!/bin/bash
-python3 parser.py
+python3 Parser_exel/parser.py
